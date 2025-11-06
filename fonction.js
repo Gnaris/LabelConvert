@@ -3,7 +3,7 @@ const { PDFDocument } = require("pdf-lib");
 const fs = require("fs")
 const { PDFParse } = require('pdf-parse');
 
-async function convertLabel(url, message) {
+async function convertLabel(url, message, iteration) {
 
     const response = await axios.get(url, { responseType: "arraybuffer" });
 
@@ -11,28 +11,34 @@ async function convertLabel(url, message) {
     const newPdf = await PDFDocument.create();
 
     const [firstPage] = await newPdf.copyPages(pdfDoc, [0]);
-
     const { width, height } = firstPage.getSize();
     firstPage.setCropBox(0, 0, width / 2, height);
-
     newPdf.addPage(firstPage);
 
     const newPdfBytes = await newPdf.save();
 
-    const filePath = "./bordereau_converti.pdf";
+    // l'itération c'est pour éviter que le gars envois plusieurs bordereau d'un coup et que ça créer un conflit de fichier
+    const filePath = "./bordereau_converti" + iteration + ".pdf";
     fs.writeFileSync(filePath, newPdfBytes);
 
     const parser = new PDFParse({ url: url });
     const result = await parser.getText();
-    const resultSplit = result.text.split("\n")
-    const destinataire = resultSplit[23]
-    const suivi = resultSplit[33]
+    let resultSplit = result.text.split("\n")
+    let destinaire = resultSplit[23];
+    let suivi;
+    resultSplit.forEach(text => {
+        if(text.replace(/\s+/g, '').match(/\b8[A-Z]\d{11,}\b/g)) // enlève tout les espaces puis check si ça correspond au format du numéro suivi
+        {
+            suivi = text.replace(/\s+/g, '')
+        }
+    })
 
     await message.reply({
-        content: destinataire + " - " + suivi,
+        content: destinaire + " - " + suivi,
         files: [filePath],
     });
-    fs.unlinkSync(filePath);
+
+    fs.unlinkSync(filePath)
 }
 
 module.exports = { convertLabel }
