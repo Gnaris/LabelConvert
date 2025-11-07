@@ -8,7 +8,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 
 client.on('messageCreate', async message => {
-  console.log(message.content)
   if (message.author.bot) return;
   let i = 0;
   for (const attachment of message.attachments.values()) {

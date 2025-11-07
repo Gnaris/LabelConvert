@@ -11,8 +11,7 @@ async function convertLabel(url, message, iteration) {
     const newPdf = await PDFDocument.create();
 
     const [firstPage] = await newPdf.copyPages(pdfDoc, [0]);
-    const { width, height } = firstPage.getSize();
-    firstPage.setCropBox(0, 0, width / 2, height);
+    firstPage.setCropBox(55.5, 163.5, 286, 342); // gauche, bas, droite, haut
     newPdf.addPage(firstPage);
 
     const newPdfBytes = await newPdf.save();
@@ -27,7 +26,7 @@ async function convertLabel(url, message, iteration) {
     let destinaire = resultSplit[23];
     let suivi;
     resultSplit.forEach(text => {
-        if(text.replace(/\s+/g, '').match(/\b8[A-Z]\d{11,}\b/g)) // enlève tout les espaces puis check si ça correspond au format du numéro suivi
+        if (text.replace(/\s+/g, '').match(/\b8[A-Z]\d{11,}\b/g)) // enlève tout les espaces puis check si ça correspond au format du numéro suivi attendu
         {
             suivi = text.replace(/\s+/g, '')
         }
