@@ -41,7 +41,7 @@ async function convertLabel(url, message, iteration, quantity = "") {
     })
 
     await message.reply({
-        content: destinaire + "\n" + suivi + (quantity && "\n" + "# --> [ " + quantity + " ] <--"),
+        content: "# " + suivi + "\n" + destinaire + (quantity && "\n" + "# --> [ " + quantity + " ] <--"),
         files: [filePath],
     });
 
