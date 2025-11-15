@@ -1,11 +1,10 @@
-const { Client, GatewayIntentBits, SlashCommandBuilder, Collection, REST, Routes, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes } = require('discord.js');
 const { convertLabel, regroupLabel, countLabel } = require('./fonction');
-const token = 'MTQzNTkzOTIxNzAwMjk5MTY1Ng.GQU3va.IDS-ard9szLH2vWWn5gtBchpjIG65NS-ktR8ns';
-const clientId = '1435939217002991656';
-const guildIds = [
-  "1435940865397755990",
-  "1435294428930768958"
-]
+const { convertLabelValidator, isAsinChannel } = require('./validator');
+const fs = require("fs")
+const token = '';
+const clientId = '';
+const guildIds = [""]
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 try {
@@ -41,18 +40,18 @@ client.on('interactionCreate', async interaction => {
 
 
 client.on('messageCreate', async message => {
-  if (message.author.bot) return;
   try {
-    let i = 0;
-    for (const attachment of message.attachments.values()) {
-      if (attachment.size > 0 || attachment.contentType == 'application/pdf' || attachment.name.endsWith(".pdf")) {
-        await convertLabel(attachment.url, message, i, message.content);
-        i++
-        if (i >= message.attachments.size) {
-          message.delete()
-        }
-      }
-    }
+    if (!await convertLabelValidator(message)) return;
+    await convertLabel(message);
+  } catch (err) {
+    console.log(err)
+  }
+})
+
+client.on('channelCreate', async (channel) => {
+  try {
+    if (!await isAsinChannel(channel)) return;
+    await channel.setName(channel.name + "____" + channel.name.split("-").map(m => m.slice(0, 4)).join("-"))
   } catch (err) {
     console.log(err)
   }
@@ -60,5 +59,6 @@ client.on('messageCreate', async message => {
 
 client.once('ready', () => {
   console.log(`Connecté en tant que ${client.user.tag}`)
+  fs.mkdirSync("./labels", { recursive: true })
 });
-client.login(token);
+client.login(token); 
