@@ -18,7 +18,7 @@ async function convertLabel(message) {
         const productName = message.channel.name.split("____")[0].split("-").map(m => m.slice(0, 4)).join("-")
 
         newPdf.getPages()[0].drawText(productName + " " + (message.content ? message.content : "x1"), {
-            x: firstPage.getCropBox().width - 210,
+            x: firstPage.getCropBox().width - 240,
             y: firstPage.getCropBox().height + 50,
             size: 10,
             color: rgb(0, 0, 0),

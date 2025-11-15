@@ -3,8 +3,8 @@ const { convertLabel, regroupLabel, countLabel } = require('./fonction');
 const { convertLabelValidator, isAsinChannel } = require('./validator');
 const fs = require("fs")
 const token = '';
-const clientId = '';
-const guildIds = [""]
+const clientId = '1439020023636033831';
+const guildIds = ["1435294428930768958"]
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 try {
