@@ -1,5 +1,15 @@
+const { removeAllEmoji } = require("./utils");
+
 async function convertLabelValidator(message){
-    if(message.author.bot) return false;
+    if(removeAllEmoji(message.channel.name).split("_").filter(n => n != "").length != 2)
+    {
+        await message.reply({
+            content :  "Renomme le nom du channel \n" +
+            "Exemple : always-noir\\_an ( faut que tu mets un '\\_' (underscore) + un code qui sera utilisé pour mettre dans le label dans l'exemple j'ai mis 'an' mais tu peux mettre ce que tu veux",
+            failIfNotExists: false
+        })
+        return false;
+    };
     if(message.attachments.size <= 0) return false;
     if(!message.channel.parent) return false;
     if(!message.channel.parent.name.includes("asin")) return false;
@@ -15,11 +25,4 @@ async function convertLabelValidator(message){
     return true;
 }
 
-async function isAsinChannel(channel){
-   if(!channel.parent) return false;
-   if(!channel.parent.name.includes("asin")) return false;
-
-   return true;
-}
-
-module.exports = { convertLabelValidator, isAsinChannel }
+module.exports = { convertLabelValidator }

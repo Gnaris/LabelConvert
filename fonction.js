@@ -2,6 +2,7 @@ const axios = require("axios")
 const { PDFDocument, rgb } = require("pdf-lib");
 const fs = require("fs")
 const { PDFParse } = require('pdf-parse');
+const { removeAllEmoji } = require("./utils");
 
 async function convertLabel(message) {
     i = 1;
@@ -15,9 +16,9 @@ async function convertLabel(message) {
         firstPage.setCropBox(45, 155, 307, 360); // gauche, bas, droite, haut
         newPdf.addPage(firstPage);
 
-        const productName = message.channel.name.split("____")[0].split("-").map(m => m.slice(0, 4)).join("-")
+        const productNameAbbreviation = removeAllEmoji(message.channel.name).split("_").filter(n => n  != "")[1]
 
-        newPdf.getPages()[0].drawText(productName + " " + (message.content ? message.content : "x1"), {
+        newPdf.getPages()[0].drawText(productNameAbbreviation + " " + (message.content ? message.content : "x1"), {
             x: firstPage.getCropBox().width - 240,
             y: firstPage.getCropBox().height + 50,
             size: 10,
@@ -28,7 +29,7 @@ async function convertLabel(message) {
         const newPdfBytes = await newPdf.save()
 
         // l'itération c'est pour éviter que le gars envois plusieurs bordereau d'un coup et que ça créer un conflit de fichier
-        const filePath = "./label-" + productName + "-" + i + ".pdf";
+        const filePath = "./label-" + productNameAbbreviation + "-" + i + ".pdf";
         fs.writeFileSync("./labels/" + filePath, newPdfBytes);
 
         const parser = new PDFParse({ url : "./labels/" + filePath});
@@ -76,7 +77,7 @@ async function regroupLabel(interaction) {
         pages.forEach(page => pdfGrouped.addPage(page));
     }
     const pdfGroupedBytes = await pdfGrouped.save()
-    const filePath = "./" + interaction.channel.name.split("____")[0] + "_groupés.pdf"
+    const filePath = "./labelsgroups/" + pdfUrl.length + "-" + removeAllEmoji(interaction.channel.name).split("_")[0] + "_labels.pdf"
     fs.writeFileSync(filePath, pdfGroupedBytes)
     await interaction.editReply({
         content: "# **" + pdfGrouped.getPages().length + " bordereaux regroupés**",

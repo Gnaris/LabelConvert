@@ -1,10 +1,10 @@
-const { Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes } = require('discord.js');
-const { convertLabel, regroupLabel, countLabel } = require('./fonction');
-const { convertLabelValidator, isAsinChannel } = require('./validator');
+const { Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes } = require('discord.js')
+const { convertLabel, regroupLabel, countLabel } = require('./fonction')
+const { convertLabelValidator } = require('./validator')
 const fs = require("fs")
-const token = '';
-const clientId = '1439020023636033831';
-const guildIds = ["1435294428930768958"]
+const token = ''
+const clientId = '1439020023636033831'
+const guildId = "1435294428930768958"
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 try {
@@ -14,9 +14,7 @@ try {
   ]
 
   const rest = new REST({ version: "10" }).setToken(token)
-  for (const guildId of guildIds) {
-    rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-  }
+  rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
 } catch (err) {
   console.log(err)
 }
@@ -41,17 +39,13 @@ client.on('interactionCreate', async interaction => {
 
 client.on('messageCreate', async message => {
   try {
-    if (!await convertLabelValidator(message)) return;
-    await convertLabel(message);
-  } catch (err) {
-    console.log(err)
-  }
-})
-
-client.on('channelCreate', async (channel) => {
-  try {
-    if (!await isAsinChannel(channel)) return;
-    await channel.setName(channel.name + "____" + channel.name.split("-").map(m => m.slice(0, 4)).join("-"))
+    if(message.author.bot) return false;
+    if (!await convertLabelValidator(message)) {
+      await message.delete()
+      return;
+    } else {
+      await convertLabel(message);
+    }
   } catch (err) {
     console.log(err)
   }
@@ -60,5 +54,6 @@ client.on('channelCreate', async (channel) => {
 client.once('ready', () => {
   console.log(`Connecté en tant que ${client.user.tag}`)
   fs.mkdirSync("./labels", { recursive: true })
+  fs.mkdirSync("./labelsgroups", { recursive: true })
 });
 client.login(token); 
